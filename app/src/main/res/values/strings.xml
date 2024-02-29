@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Calculator</string>
+    <string name="output_txt">0</string>
+    <string name="output_tag">output</string>
+    <string-array name="button_tags">
+        <!--    Row 1   -->
+        <item>Number_7</item>
+        <item>Number_8</item>
+        <item>Number_9</item>
+        <item>Operation_SqRt</item>
+        <item>Operation_Clear</item>
+
+        <!--    Row 2   -->
+        <item>Number_4</item>
+        <item>Number_5</item>
+        <item>Number_6</item>
+        <item>Operation_Divide</item>
+        <item>Operation_Percent</item>
+
+        <!--    Row 3   -->
+        <item tools:ignore="Typos">Number_1</item>
+        <item>Number_2</item>
+        <item>Number_3</item>
+        <item>Operation_Multiply</item>
+        <item>Operation_Subtract</item>
+
+        <!--    Row 4   -->
+        <item>Operation_Negative</item>
+        <item>Number_0</item>
+        <item>Operation_Decimal</item>
+        <item>Operation_Addition</item>
+        <item>Operation_Equal</item>
+    </string-array>
+
+    <string-array name="button_text">
+        <!--    Row 1   -->
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>\u221A</item>
+        <item>C</item>
+
+        <!--    Row 2   -->
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>\u00F7</item>
+        <item>%</item>
+
+        <!--    Row 3   -->
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>\u00D7</item>
+        <item>-</item>
+
+        <!--    Row 4   -->
+        <item>\u00B1</item>
+        <item>0</item>
+        <item>.</item>
+        <item>+</item>
+        <item>=</item>
+    </string-array>
+</resources>

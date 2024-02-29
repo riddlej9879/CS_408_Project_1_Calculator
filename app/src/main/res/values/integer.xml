@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--==========================================-->
+<!--  HOLDS INTEGER CONSTANTS FOR CALCULATOR  -->
+<!--==========================================-->
+<resources>
+    <integer name="output_text_size">48</integer>
+    <integer name="button_text_size">24</integer>
+    <integer name="chain_horizontal">5</integer>
+    <integer name="chain_vertical">4</integer>
+    <integer name="max_characters">10</integer>
+</resources>
