@@ -1,11 +1,14 @@
 package com.example.project_1_calculator;
 
+import android.util.Log;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public abstract class AbstractController implements PropertyChangeListener {
+    public static final String TAG = "AbstractControl";
     private ArrayList<AbstractView> views;
     private ArrayList<AbstractModel> models;
 
@@ -32,11 +35,13 @@ public abstract class AbstractController implements PropertyChangeListener {
     }
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        Log.i(TAG, "propertyChange");
         for (AbstractView view : views) {
             view.modelPropertyChange(evt);
         }
     }
     protected void setModelProperty(String propertyName, Object newOutputText) {
+        Log.i(TAG, "setModelProperty");
         for (AbstractModel model : models) {
             try {
                 Method method = model.getClass().getMethod("set" + propertyName, newOutputText.getClass());

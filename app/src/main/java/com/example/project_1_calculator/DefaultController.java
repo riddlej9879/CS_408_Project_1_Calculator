@@ -1,14 +1,12 @@
 package com.example.project_1_calculator;
 
+import android.util.Log;
+
 public class DefaultController extends AbstractController {
-    private DefaultModel model;
-    private MainActivity main;
-    public DefaultController(MainActivity main) {
-        this.main = main;
-        model = new DefaultModel();
-    }
+    public static final String TAG = "DefaultControl";
     public static final String OUTPUT_PROPERTY = "0";
-    public void changeElementOutputText(String newText) {
+    public void changeOutputText(String newText) {
+        Log.i(TAG, "changeOutputText");
         setModelProperty(OUTPUT_PROPERTY, newText);
     }
 }

@@ -7,6 +7,9 @@ import android.view.Gravity;
 import android.widget.Button;
 import android.widget.TextView;
 import java.beans.PropertyChangeEvent;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import android.view.ViewGroup.LayoutParams;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,7 +19,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.example.project_1_calculator.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity implements AbstractView {
-    private static final String TAG_MAIN_ACTIVITY = "MainActivity()";
+    private static final String TAG_MAIN_ACTIVITY = "MainActivity";
     private ActivityMainBinding binding;
     private DefaultController controller;
     private final int NORTH = R.id.guidelineTop;
@@ -24,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
     private final int WEST = R.id.guidelineLeft;
     private final int EAST = R.id.guidelineRight;
     public CalculatorState state;
+    public DefaultModel model;
 
     // SQLite section
     // Saving the application state and data
@@ -37,25 +41,24 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
         View view = binding.getRoot();
         setContentView(view);
 
-        controller = new DefaultController(this);
-        DefaultModel calcModel = new DefaultModel();
+        controller = new DefaultController();
+        model = new DefaultModel();
 
         controller.addView(this);
-        controller.addModel(calcModel);
+        controller.addModel(model);
 
-        // context: this Passes res access to object
-        calcModel.model(this);
+        // context: this Passes resource access to model class
+        model.model(this);
 
         ConstraintLayout layout = binding.layout;
 
-        initializeLayout(calcModel, layout);
+        initializeLayout(model, layout);
     }
 
     private void initializeLayout(DefaultModel model, ConstraintLayout layout) {
         String TAG_INIT = "Init Layout";
-        Log.i(TAG_INIT, "Initialize Layout started");
         ClickHandler click = new ClickHandler();
-        state = CalculatorState.LEFT;
+        state = CalculatorState.CLEAR;
 
         /* **************************************************************** */
         /*                      CREATE OUTPUT TEXTVIEW                      */
@@ -139,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
             );
         }
         set.applyTo(layout);
-        Log.i(TAG_INIT, "Initialize Layout started");
     }
 
     @Override
@@ -148,14 +150,60 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
         String propValue = event.getNewValue().toString();
     }
 
-    static class ClickHandler implements View.OnClickListener {
+    class ClickHandler implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            String TAG_CLICK = "On click";
-            String MSG_CLICK = view.getTag().toString();
+            String btnTag = ((Button) view).getTag().toString();
+            CalculatorState clickState = model.getState();
 
-            String clkTag = ((Button) view).getTag().toString();
-            DefaultModel.handleClick(clkTag);
+            handleClick(btnTag, clickState);
+        }
+    }
+    public void handleClick(String tag, CalculatorState clickState) {
+        String[] tagArr = tag.split("_");
+        switch(tagArr[0]) {
+            case "Number":
+                switch(clickState) {
+                    case CLEAR:
+                        digitClicked(tagArr[1], state);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "Operation":
+                switch(clickState) {
+                    case OPERAND:
+                        Log.i("operand", "word");
+                        break;
+                    default:
+                        break;
+                }
+
+                break;
+            default:
+                break;
+        }
+    }
+    public void digitClicked(String digit, CalculatorState state) {
+        StringBuilder Old_Output = new StringBuilder();
+        StringBuilder New_Output = new StringBuilder();
+        BigDecimal Old_Number = new BigDecimal(Integer.parseInt(model.getOutputText().toString()));
+        BigDecimal New_Number = new BigDecimal(BigInteger.ZERO);
+        int number = Integer.parseInt(digit);
+
+        if (Old_Output.length() < model.getMaxLength()) {
+            if ((Old_Number.compareTo(BigDecimal.ZERO) == 0) && (number > 0)) {
+                New_Output.append(number);
+                New_Number = new BigDecimal(String.valueOf(New_Output));
+            } else if (Old_Number.compareTo(BigDecimal.ZERO) != 0) {
+                New_Output = new StringBuilder(Old_Output + digit);
+                New_Number = new BigDecimal(String.valueOf(New_Output));
+            }
+            if (New_Output.length() <= model.getMaxLength()) {
+                model.setOutputText(New_Output);
+                model.setLeft(New_Number);
+            }
         }
     }
 }

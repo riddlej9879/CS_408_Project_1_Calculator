@@ -1,23 +1,26 @@
 package com.example.project_1_calculator;
 
-import android.content.ContextWrapper;
 import android.util.Log;
 import android.content.Context;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class DefaultModel extends AbstractModel {
-    private final String defaultOutputText = BigDecimal.ZERO.toString();
-    private int hr, vr, btn_txt_sz, op_txt_sz, length;
+    public static final String TAG = "DefaultModel";
+    private final StringBuilder defaultOutputText = new StringBuilder("0");
+    private int hr;
+    private int vr;
+    private int btn_txt_sz;
+    private int op_txt_sz;
+    private int maxLength;
     private String[] btnTxtArr;
     private String[] btnTagArr;
     private String outputTag;
-    private String outputText;
-    private BigDecimal right = BigDecimal.ZERO;
+    private StringBuilder outputText = new StringBuilder("0");
     private BigDecimal left = BigDecimal.ZERO;
-    private StringBuilder New_Output;
-    private static CalculatorState state;
+    private BigDecimal right = BigDecimal.ZERO;
+    private CalculatorState state;
     private Operation operation;
 
     // Constructor
@@ -30,21 +33,18 @@ public class DefaultModel extends AbstractModel {
         vr = context.getResources().getInteger(R.integer.chain_vertical);
         btn_txt_sz = context.getResources().getInteger(R.integer.button_text_size);
         op_txt_sz = context.getResources().getInteger(R.integer.output_text_size);
-        length = context.getResources().getInteger(R.integer.max_characters);
+        maxLength = context.getResources().getInteger(R.integer.max_characters);
         state = CalculatorState.CLEAR;
         operation = Operation.CLEAR;
     }
 
     // USE STRING BUILDER FOR CREATING NEW OUTPUT TEXT
     // Setter Methods
-    private void setOutputText(String newOutputText) {
-        String oldOutputText = this.outputText;
-        if (outputText == null) {
-            this.outputText = newOutputText;
-        } else {
-            this.outputText += newOutputText;
-        }
-        firePropertyChange(DefaultController.OUTPUT_PROPERTY, oldOutputText, newOutputText);
+    public void setOutputText(StringBuilder newOutputText) {
+        Log.i(TAG, "setOutputText");
+        StringBuilder oldOutputText = outputText;
+
+        firePropertyChange(DefaultController.OUTPUT_PROPERTY, oldOutputText.toString(), newOutputText.toString());
     }
     public void setOutputTag(String id) {
         this.outputTag = outputTag + id;
@@ -55,15 +55,21 @@ public class DefaultModel extends AbstractModel {
     private void setBtnTxtArr(String[] sTxt) {
         this.btnTxtArr = sTxt;
     }
-    private void setRight(BigDecimal right) {
+    public void setRight(BigDecimal right) {
         this.right = right;
     }
-    private void setLeft(BigDecimal left) {
+    public void setLeft(BigDecimal left) {
         this.left = left;
+    }
+    public void setState(CalculatorState state) {
+        this.state = state;
+    }
+    public void setOperation(Operation operation) {
+        this.operation = operation;
     }
 
     // Getter methods
-    public String getOutputText() {
+    public StringBuilder getOutputText() {
         return outputText;
     }
     public String getOutputTag() {
@@ -87,26 +93,19 @@ public class DefaultModel extends AbstractModel {
     public int getOutputTxtSize() {
         return op_txt_sz;
     }
-    public static CalculatorState getState() {
+    public CalculatorState getState() {
         return state;
+    }
+    public int getMaxLength() {
+        return maxLength;
     }
     public Operation getOperation() {
         return operation;
     }
-    public BigDecimal getRight(BigDecimal right) {
-        return this.right = right;
+    public BigDecimal getRight() {
+        return right;
     }
-    public BigDecimal getLeft(BigDecimal left) {
-        return this.left = left;
-    }
-    public static void handleClick(String tag) {
-        String[] tagArr = tag.split("_");
-        switch(getState()) {
-            case CLEAR:
-            case CLEAR:
-            case CLEAR:
-            case CLEAR:
-            case CLEAR:
-        }
+    public BigDecimal getLeft() {
+        return left;
     }
 }
