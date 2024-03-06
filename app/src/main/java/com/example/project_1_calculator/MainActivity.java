@@ -1,16 +1,14 @@
 package com.example.project_1_calculator;
 
-import android.util.Log;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Gravity;
 import android.widget.Button;
 import android.widget.TextView;
 import java.beans.PropertyChangeEvent;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -19,7 +17,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.example.project_1_calculator.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity implements AbstractView {
-    private static final String TAG_MAIN_ACTIVITY = "MainActivity";
     private ActivityMainBinding binding;
     private DefaultController controller;
     private final int NORTH = R.id.guidelineTop;
@@ -28,13 +25,8 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
     private final int EAST = R.id.guidelineRight;
     public DefaultModel model;
 
-    // SQLite section
-    // Saving the application state and data
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG_MAIN_ACTIVITY, "MainActivity");
-
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
@@ -48,14 +40,11 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
 
         // context: this Passes resource access to model class
         model.model(this);
-
-        ConstraintLayout layout = binding.layout;
-
-        initializeLayout(model, layout);
+        initializeLayout(model);
     }
 
-    private void initializeLayout(DefaultModel model, ConstraintLayout layout) {
-        String TAG_INIT = "Init Layout";
+    private void initializeLayout(DefaultModel model) {
+        ConstraintLayout layout = binding.layout;
         ClickHandler click = new ClickHandler();
 
         /* **************************************************************** */
@@ -144,14 +133,20 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
 
     @Override
     public void modelPropertyChange(final PropertyChangeEvent event) {
-        String propName = event.getPropertyName();
-        String propValue = event.getNewValue().toString();
+        String propertyName = event.getPropertyName();
+
+        if (propertyName.equals(DefaultController.OUTPUT_PROPERTY) ) {
+            TextView output = binding.layout.findViewWithTag("output");
+            output.setText(event.getNewValue().toString());
+        }
     }
 
     class ClickHandler implements View.OnClickListener {
         @Override
         public void onClick(View view) {
             String btn_tag = view.getTag().toString();
+            Toast toast = Toast.makeText(binding.getRoot().getContext(), btn_tag, Toast.LENGTH_SHORT);
+            toast.show();
 
             controller.changeOutputText(btn_tag);
         }
