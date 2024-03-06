@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
     private final int SOUTH = R.id.guidelineBottom;
     private final int WEST = R.id.guidelineLeft;
     private final int EAST = R.id.guidelineRight;
-    public CalculatorState state;
     public DefaultModel model;
 
     // SQLite section
@@ -58,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
     private void initializeLayout(DefaultModel model, ConstraintLayout layout) {
         String TAG_INIT = "Init Layout";
         ClickHandler click = new ClickHandler();
-        state = CalculatorState.CLEAR;
 
         /* **************************************************************** */
         /*                      CREATE OUTPUT TEXTVIEW                      */
@@ -153,62 +151,9 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
     class ClickHandler implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            String btnTag = ((Button) view).getTag().toString();
-            CalculatorState clickState = model.getState();
+            String btn_tag = view.getTag().toString();
 
-            handleClick(btnTag, clickState);
-        }
-    }
-    public void handleClick(String tag, CalculatorState clickState) {
-        String[] tagArr = tag.split("_");
-        switch(tagArr[0]) {
-            case "Number":
-                switch(clickState) {
-                    case CLEAR:
-                        digitClicked(tagArr[1], state);
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case "Operation":
-                switch(clickState) {
-                    case OPERAND:
-                        Log.i("operand", "word");
-                        break;
-                    default:
-                        break;
-                }
-
-                break;
-            default:
-                break;
-        }
-    }
-    public void digitClicked(String digit, CalculatorState state) {
-        StringBuilder Old_Output = new StringBuilder();
-        StringBuilder New_Output = new StringBuilder();
-        BigDecimal Old_Number = new BigDecimal(Integer.parseInt(model.getOutputText().toString()));
-        BigDecimal New_Number = new BigDecimal(BigInteger.ZERO);
-        int number = Integer.parseInt(digit);
-
-        if (Old_Output.length() < model.getMaxLength()) {
-            if ((Old_Number.compareTo(BigDecimal.ZERO) == 0) && (number > 0)) {
-                New_Output.append(number);
-                New_Number = new BigDecimal(String.valueOf(New_Output));
-            } else if (Old_Number.compareTo(BigDecimal.ZERO) != 0) {
-                New_Output = new StringBuilder(Old_Output + digit);
-                New_Number = new BigDecimal(String.valueOf(New_Output));
-            }
-            if (New_Output.length() <= model.getMaxLength()) {
-                model.setOutputText(New_Output);
-                model.setLeft(New_Number);
-            }
+            controller.changeOutputText(btn_tag);
         }
     }
 }
-
-// import java.math.BigDecimal;
-// use BigDecimal for floating point numbers
-// To add BigDecimal sum = LeftNumber.add(RightNumber)
-// Create new BigDecimal values using strings
