@@ -1,74 +1,79 @@
 package com.example.project_1_calculator;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.math.BigDecimal;
 
 public class DefaultModel extends AbstractModel {
-    private int hr;
-    private int vr;
-    private int btn_txt_sz;
-    private int op_txt_sz;
-    private int maxLength;
-    private String[] btnTxtArr;
-    private String[] btnTagArr;
-    private String outputTag;
+    private final String LogTag = "DEFAULT MODEL";
     private final String defaultOutputText = "0";
+    private final int maxLength = 10;
     private String outputText;
-    private BigDecimal leftDec = BigDecimal.ZERO;
-    private BigDecimal rightDec = BigDecimal.ZERO;
-    private BigDecimal result = BigDecimal.ZERO;
+    private BigDecimal leftDec, rightDec, result;
+
+    private StringBuilder leftString, rightString;
     private EnumCalcState state;
     private EnumOperation operation;
 
     // Constructor
-    public void model(Context context) {
+    public DefaultModel() {
         setOutputText(defaultOutputText);
-        setOutputTag(context.getResources().getString(R.string.output_tag));
-        setBtnTagArr(context.getResources().getStringArray(R.array.button_tags));
-        setBtnTxtArr(context.getResources().getStringArray(R.array.button_text));
-        hr = context.getResources().getInteger(R.integer.chain_horizontal);
-        vr = context.getResources().getInteger(R.integer.chain_vertical);
-        btn_txt_sz = context.getResources().getInteger(R.integer.button_text_size);
-        op_txt_sz = context.getResources().getInteger(R.integer.output_text_size);
-        maxLength = context.getResources().getInteger(R.integer.max_characters);
+        leftDec = BigDecimal.ZERO;
+        rightDec = BigDecimal.ZERO;
+        leftString = new StringBuilder(leftDec.toString());
+        rightString = new StringBuilder(rightDec.toString());
+        result = BigDecimal.ZERO;
         state = EnumCalcState.CLEAR;
         operation = EnumOperation.NONE;
     }
 
     // Setter Methods
-    public void setDefaultOutputText(String defText) {
-        firePropertyChange(DefaultController.OUTPUT_PROPERTY, defText, defText);
-    }
-    public void setOutputText(String result) {
-        String oldOutputText = getOutputText();
+    public void setOutputText(String outText) {
+        Log.d(LogTag, "setOutputText");
+        String oldOutputText = this.outputText;
+        Log.d(LogTag, "Old: " + oldOutputText + " New: " + outText);
+        if (oldOutputText == null) {
+            Log.d("SetOut called", "Text was null");
+             oldOutputText = BigDecimal.ZERO.toString();
+        }
+        this.outputText = outText;
 
-        firePropertyChange(DefaultController.OUTPUT_PROPERTY, oldOutputText, result);
-    }
-    public void setOutputTag(String id) {
-        this.outputTag = outputTag + id;
-    }
-    private void setBtnTagArr(String[] sTag) {
-        this.btnTagArr = sTag;
-    }
-    private void setBtnTxtArr(String[] sTxt) {
-        this.btnTxtArr = sTxt;
+        firePropertyChange(DefaultController.OUTPUT_PROPERTY, oldOutputText, outText);
     }
     public void setLeftDec(BigDecimal newLeft) {
-        String oldOutputText = leftDec.toString();
+        Log.d(LogTag, "setLeftDec: " + newLeft.toString());
+        String newText = newLeft.toString();
+        this.leftDec = newLeft;
 
-        firePropertyChange(DefaultController.OUTPUT_PROPERTY, oldOutputText, newLeft.toString());
+        setOutputText(newText);
     }
     public void setRightDec(BigDecimal newRight) {
-        String oldOutputText = rightDec.toString();
+        Log.d(LogTag, "setRightDec: " + newRight.toString());
+        String newText = newRight.toString();
+        this.rightDec = newRight;
 
-        firePropertyChange(DefaultController.OUTPUT_PROPERTY, oldOutputText, newRight.toString());
+        setOutputText(newText);
+    }
+    public void setResult(BigDecimal result) {
+        Log.d(LogTag, "setResult: " + result.toString());
+        String newText = result.toString();
+
+        this.result = result;
+        setOutputText(newText);
+    }
+    public void setLeftString(StringBuilder leftString) {
+        this.leftString = leftString;
+        setOutputText(leftString.toString());
+    }
+    public void setRightString(StringBuilder rightString) {
+        this.rightString = rightString;
     }
     public void setState(EnumCalcState state) {
+        Log.d(LogTag, "setState");
         this.state = state;
     }
     public void setOperation(EnumOperation operation) {
+        Log.d(LogTag, "setOperation");
         this.operation = operation;
     }
 
@@ -77,73 +82,97 @@ public class DefaultModel extends AbstractModel {
     public String getOutputText() {
         return outputText;
     }
-    public String getOutputTag() {
-        return outputTag;
-    }
-    public String getBtnTagArr(int index) {
-        return btnTagArr[index];
-    }
-    public String getBtnTxtArr(int index) {
-        return btnTxtArr[index];
-    }
-    public int getHorizontal() {
-        return hr;
-    }
-    public int getVertical() {
-        return vr;
-    }
-    public int getBtnTxtSize() {
-        return btn_txt_sz;
-    }
-    public int getOutputTxtSize() {
-        return op_txt_sz;
-    }
     public int getMaxLength() {
         return maxLength;
     }
 
     // Calculator methods
     public EnumCalcState getState() {
+        Log.d(LogTag, "getState");
         return state;
     }
     public EnumOperation getOperation() {
+        Log.d(LogTag, "getOperation");
         return operation;
     }
     public BigDecimal getLeftDec() {
+        Log.d(LogTag, "getLeftDec");
         return leftDec;
     }
     public BigDecimal getRightDec() {
+        Log.d(LogTag, "getRightDec");
         return rightDec;
     }
     public StringBuilder getLeftString() {
+        Log.d(LogTag, "getLeftString");
         return new StringBuilder(getLeftDec().toString());
     }
     public StringBuilder getRightString() {
+        Log.d(LogTag, "getRightString");
         return new StringBuilder(getRightDec().toString());
     }
 
     // Click handler methods
     public void setText(String tag) {
+        Log.d(LogTag, "setText");
         String[] tag_arr = tag.split("_");
+        EnumCalcState currState = getState();
+
         switch (tag_arr[0].toLowerCase()) {
-            case "operation":
-                Log.i("Operation", tag_arr[1]);
-                handleOpClick(tag_arr[1]);
-                break;
             case "number":
-                Log.i("Number", tag_arr[1]);
                 // (number > 0) ? "positive" : (number < 0) ? "negative" : "zero";
-                if (getState() == EnumCalcState.CLEAR) {
+                if (currState == EnumCalcState.CLEAR) {
                     setState(EnumCalcState.LEFT);
+                } else if (currState == EnumCalcState.OPERAND_SELECTED) {
+                    setState(EnumCalcState.RIGHT);
                 }
                 handleNumClick(tag_arr[1], getState());
+                break;
+            case "operation":
+                handleOpClick(tag_arr[1]);
                 break;
             default:
                 Log.e("setText", "No tag found");
                 break;
         }
     }
+    // Method called if user clicks a number
+    public void handleNumClick(String num, EnumCalcState state) {
+        StringBuilder currOutString = new StringBuilder(getOutputText());
+        StringBuilder newOutString = new StringBuilder();
+        EnumOperation currOp = getOperation();
+
+        switch (state) {
+            case LEFT:
+                if (currOutString.toString().equals("0")) {
+                    newOutString.append(num);
+                } else if (currOutString.length() < getMaxLength()) {
+                    newOutString.append(currOutString).append(num);
+                }
+                setLeftString(newOutString);
+                break;
+            case RIGHT:
+                Log.d(LogTag, "If state == operation_selected output may not be 0");
+                if (currOutString.toString().equals("0")) {
+                    newOutString.append(num);
+                } else if (currOutString.length() < getMaxLength()) {
+                    newOutString.append(currOutString).append(num);
+                }
+                setRightString(newOutString);
+                break;
+            default:
+                Log.e("handleNumClick", "Handle Number Click default case.");
+                break;
+        }
+    }
+    // Method called if user selects a non-number
     public void handleOpClick(String tag_op) {
+        Log.d(LogTag, "handleOpClick");
+        StringBuilder currOutString = new StringBuilder(getOutputText());
+        StringBuilder newOutString = new StringBuilder();
+        EnumCalcState currState = getState();
+        EnumOperation currOperation = getOperation();
+
         /*
         switch (getState()) {
             case CLEAR:
@@ -167,31 +196,29 @@ public class DefaultModel extends AbstractModel {
 
         switch (tag_op.toLowerCase()) {
             case "clear":
-                if (getState() != EnumCalcState.CLEAR) {
-                    setState(EnumCalcState.LEFT);
-                    setLeftDec(BigDecimal.ZERO);
-                    setRightDec(BigDecimal.ZERO);
-                    setOutputText(defaultOutputText);
-                }
+                ClearClicked();
                 break;
             case "percent":
                 setState(EnumCalcState.RIGHT);
                 break;
             case "equals":
                 setState(EnumCalcState.RESULT);
-                calculteResult();
+                calculateResult();
                 break;
             case "decimal":
-                StringBuilder leftString = getLeftString();
-                boolean containsDecimal = leftString.indexOf(".") != -1;
-                if (!containsDecimal && leftString.length() < getMaxLength()) {
-                    leftString.append(".");
+                Log.d(LogTag, "Decimal");
+                if (currState == EnumCalcState.LEFT) {
+                    boolean containsDecimal = currOutString.indexOf(".") != -1;
+                    if (!containsDecimal && (currOutString.length() < getMaxLength())) {
+                        newOutString.append(currOutString).append(".");
+                        setOutputText(newOutString.toString());
+                    }
                 }
                 break;
             case "negative":
-                if (getState() == EnumCalcState.LEFT) {
+                if (state == EnumCalcState.LEFT) {
                     setLeftDec(getLeftDec().negate());
-                } else if (getState() == EnumCalcState.RIGHT) {
+                } else if (state == EnumCalcState.RIGHT) {
                     setRightDec(getRightDec().negate());
                 }
                 break;
@@ -206,29 +233,20 @@ public class DefaultModel extends AbstractModel {
                 break;
         }
     }
-    public void handleNumClick(String num, EnumCalcState state) {
-        Log.i("num click", num);
-        switch (state) {
-            case LEFT:
-                StringBuilder oldLeftString = getLeftString();
-                if (oldLeftString.length() < getMaxLength()) {
-                    oldLeftString.append(num);
-                    setLeftDec(new BigDecimal(getLeftString().toString()));
-                }
-                Log.d("Left", oldLeftString.toString());
-                break;
-            case RIGHT:
-                StringBuilder oldRightString = getRightString();
-                if (oldRightString.length() < getMaxLength()) {
-                    oldRightString.append(num);
-                    setRightDec(new BigDecimal(getRightString().toString()));
-                }
-                Log.d("Right",oldRightString.toString());
-                break;
-            default:
-                Log.d("Num Click",getOperation().toString());
-                break;
+    private void calculateResult() {
+        Log.d(LogTag, "calculateResult");
+    }
+
+    private void ClearClicked() {
+        if (getState() != EnumCalcState.CLEAR) {
+            StringBuilder zero = new StringBuilder("0");
+            setOutputText(defaultOutputText);
+            setState(EnumCalcState.LEFT);
+            setLeftDec(BigDecimal.ZERO);
+            setRightDec(BigDecimal.ZERO);
+            setResult(BigDecimal.ZERO);
+            setLeftString(zero);
+            setRightString(zero);
         }
     }
-    private void calculteResult() {}
 }

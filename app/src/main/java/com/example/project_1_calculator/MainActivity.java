@@ -23,7 +23,6 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
     private final int SOUTH = R.id.guidelineBottom;
     private final int WEST = R.id.guidelineLeft;
     private final int EAST = R.id.guidelineRight;
-    public DefaultModel model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,32 +31,33 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
         View view = binding.getRoot();
         setContentView(view);
 
+        initializeLayout();
+
         controller = new DefaultController();
-        model = new DefaultModel();
-
         controller.addView(this);
-        controller.addModel(model);
 
-        // context: this Passes resource access to model class
-        model.model(this);
-        initializeLayout(model);
+        DefaultModel model = new DefaultModel();
+        controller.addModel(model);
     }
 
-    private void initializeLayout(DefaultModel model) {
+    private void initializeLayout() {
         ConstraintLayout layout = binding.layout;
         ClickHandler click = new ClickHandler();
+        int hr = getResources().getInteger(R.integer.chain_horizontal),
+                vr = getResources().getInteger(R.integer.chain_vertical);
+        int btn_txt_sz = getResources().getInteger(R.integer.button_text_size),
+                op_txt_sz = getResources().getInteger(R.integer.output_text_size);
 
         /* **************************************************************** */
         /*                      CREATE OUTPUT TEXTVIEW                      */
         /* **************************************************************** */
         TextView output = new TextView(this);
         output.setId(View.generateViewId());
-        int outputId = output.getId();
-        model.setOutputTag(String.valueOf(outputId));
-        output.setTag(model.getOutputTag());
-        output.setText(model.getOutputText());
-        output.setTextSize(model.getOutputTxtSize());
+        output.setTag(getResources().getString(R.string.output_tag));
+        output.setText(getResources().getString(R.string.output_txt));
+        output.setTextSize(op_txt_sz);
         layout.addView(output);
+        int outputId = output.getId();
 
         LayoutParams output_params = output.getLayoutParams();
         output_params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT;
@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
         /* **************************************************************** */
         /*                       CREATE BUTTON LAYOUT                       */
         /* **************************************************************** */
-        int hr = model.getHorizontal(), vr = model.getVertical();
-        int btn_txt_sz = model.getBtnTxtSize();
+        String[] btnTxtArr = getResources().getStringArray(R.array.button_text);
+        String[] btnTagArr = getResources().getStringArray(R.array.button_tags);
         int btn_counter = 0;
         int[][] horizontal = new int[vr][hr];
         int[][] vertical   = new int[hr][vr];
@@ -87,8 +87,8 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
                 Button btn = new Button(this);
 
                 btn.setId(id);
-                btn.setTag(model.getBtnTagArr(btn_counter));
-                btn.setText(model.getBtnTxtArr(btn_counter));
+                btn.setTag(btnTagArr[btn_counter]);
+                btn.setText(btnTxtArr[btn_counter]);
                 btn.setTextSize(btn_txt_sz);
                 layout.addView(btn);
                 horizontal[v][h] = id;
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements AbstractView {
                 btn_params.width  = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT;
                 btn_params.height = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT;
                 btn.setLayoutParams(btn_params);
-                btn.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL );
+                btn.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
 
                 btn.setOnClickListener(click);
                 btn_counter++;
