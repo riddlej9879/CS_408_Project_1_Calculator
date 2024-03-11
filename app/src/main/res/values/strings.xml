@@ -38,25 +38,25 @@
         <item>7</item>
         <item>8</item>
         <item>9</item>
-        <item>\u221A</item>
+        <item>\u221A</item>     <!--    SqRt        -->
         <item>C</item>
 
         <!--    Row 2   -->
         <item>4</item>
         <item>5</item>
         <item>6</item>
-        <item>\u00F7</item>
+        <item>\u00F7</item>     <!--    Divide      -->
         <item>%</item>
 
         <!--    Row 3   -->
         <item>1</item>
         <item>2</item>
         <item>3</item>
-        <item>\u00D7</item>
+        <item>\u00D7</item>     <!--    Multiply    -->
         <item>-</item>
 
         <!--    Row 4   -->
-        <item>\u00B1</item>
+        <item>\u00B1</item>     <!--    Negate      -->
         <item>0</item>
         <item>.</item>
         <item>+</item>
