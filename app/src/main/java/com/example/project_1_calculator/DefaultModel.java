@@ -3,9 +3,10 @@ package com.example.project_1_calculator;
 import android.util.Log;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.BigDecimal.*;
 
 public class DefaultModel extends AbstractModel {
-    private final String LogTag = "DEFAULT MODEL";
     private final String defaultOutputText = "0";
     private final int maxLength = 9;
     private String outputText;
@@ -140,7 +141,6 @@ public class DefaultModel extends AbstractModel {
                 setLeftDec(new BigDecimal(newOutString.toString()));
                 break;
             case RIGHT:
-                Log.i("Moving HanNum Right", currOutString.toString());
                 StringBuilder r = getRightString();
                 int R_len = String.join("", getRightDec().abs().toString().split("\\.")).length();
 
@@ -160,17 +160,21 @@ public class DefaultModel extends AbstractModel {
     }
     // Method called if user selects a non-number
     public void HandleOpClick(String tag_op, EnumCalcState currState) {
-        Log.d(LogTag, "handleOpClick method");
         StringBuilder currOutString = new StringBuilder(getOutputText());
         StringBuilder newOutString = new StringBuilder();
-        EnumOperation currOperation = getOperation();
+        EnumOperation currOp = getOperation();
 
         if (currState != EnumCalcState.ERROR) {
             switch (tag_op.toLowerCase()) {
                 case "percent":
-                    Log.d("Case Percent", "Incorrectly handled");
-                    // Should probably just move the decimal two places
-                    setState(EnumCalcState.RIGHT);
+                    if (currState == EnumCalcState.LEFT) {
+                        setLeftDec(CalculateResult(getLeftDec(), EnumOperation.DIVIDE, new BigDecimal(100)));
+                        setState(EnumCalcState.RIGHT);
+                    } else if (currState == EnumCalcState.RIGHT) {
+                        setState(EnumCalcState.RESULT);
+                        setRightDec(CalculateResult(getLeftDec(), EnumOperation.DIVIDE, new BigDecimal(100)));
+                        setResult(CalculateResult(getLeftDec(), currOp, getRightDec()));
+                    }
                     break;
                 case "equal":
                     setState(EnumCalcState.RESULT);
@@ -192,9 +196,6 @@ public class DefaultModel extends AbstractModel {
                             newOutString.append(currOutString).append(".");
                             setOutputText(newOutString.toString());
                         }
-                    } else if (currState == EnumCalcState.OPERAND_SELECTED) {
-                        int R_len = String.join("", getRightDec().toString().split("\\.")).length();
-                        setOutputText(newOutString.toString());
                     }
                     break;
                 case "negative":
@@ -205,6 +206,29 @@ public class DefaultModel extends AbstractModel {
                     }
                     break;
                 case "sqrt":
+                    Log.i("Root", "sqrt");
+                    try {
+                        if (currState == EnumCalcState.LEFT) {
+                            setLeftDec(SquareRoot(getLeftDec()));
+                        } else if (currState == EnumCalcState.RIGHT) {
+                            StringBuilder r = new StringBuilder();
+                            setRightDec(SquareRoot(getRightDec()));
+                            if (currOp == EnumOperation.ADD) {
+                                setOutputText(r.append(getLeftDec()).append(" + ").append(getRightString()).toString());
+                            } else if (currOp == EnumOperation.SUBTRACT) {
+                                setOutputText(r.append(getLeftDec()).append(" - ").append(getRightString()).toString());
+
+                            } else if (currOp == EnumOperation.MULTIPLY) {
+                                setOutputText(r.append(getLeftDec()).append(" ÷ ").append(getRightString()).toString());
+                            } else if (currOp == EnumOperation.DIVIDE) {
+                                setOutputText(r.append(getLeftDec()).append(" × ").append(getRightString()).toString());
+                            }
+                        }
+                    } catch (ArithmeticException e) {
+                        Log.e("An Error has occurred", "HandleOpClick(): " + tag_op);
+                        setState(EnumCalcState.ERROR);
+                        setOutputText("ERROR");
+                    }
                     break;
                 case "divide":
                     setOperation(EnumOperation.DIVIDE);
@@ -238,13 +262,10 @@ public class DefaultModel extends AbstractModel {
 
         switch (currState) {
             case LEFT:
-                Log.i("Moving add op", "left");
                 setState(EnumCalcState.RIGHT);
                 setOutputText(currOut.toString() + symbol);
-                Log.i("Moving add op", getState().toString());
                 break;
             case RIGHT:
-                Log.i("Moving add op", "right");
                 BigDecimal newLeft = CalculateResult(getLeftDec(), currOp, getRightDec());
                 setLeftDec(newLeft);
                 break;
@@ -269,16 +290,33 @@ public class DefaultModel extends AbstractModel {
                 res = leftNum.divide(rightNum, getMaxLength(), BigDecimal.ROUND_HALF_UP);
                 break;
             default:
-                Log.e("Calculation Error", "Error: " + op.toString());
+                Log.e("Calculation Error", "Error: " + op);
                 break;
         }
-        Log.i("Calculate","L: " + leftNum.toString()
-                + " R: " + rightNum .toString() + " Op: " + op);
 
         return res;
     }
+    private BigDecimal SquareRoot(BigDecimal number) {
+        Log.i("SqRt function", number.toString());
+        // BigDecimal.sqrt doesn't work with API 22.
+        // Documentation refers to API version 33
+        // Used ChatGPT code to fill the gap in knowledge
+        BigDecimal two = BigDecimal.valueOf(2);
+        BigDecimal res = number.divide(two);
+
+        while (true) {
+            BigDecimal one = number.divide(res, 100, BigDecimal.ROUND_HALF_UP);
+            one = one.add(res);
+            one = one.divide(two, 100, BigDecimal.ROUND_HALF_UP);
+            if (res.equals(one)) {
+                break;
+            }
+            res = one;
+        }
+
+        return res.stripTrailingZeros();
+    }
     private void ClearClicked() {
-        Log.i("Clear Clicked", "This should clear");
         StringBuilder zero = new StringBuilder("0");
         setOutputText(zero.toString());
         setState(EnumCalcState.CLEAR);
